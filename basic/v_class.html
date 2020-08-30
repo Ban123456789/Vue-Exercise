@@ -145,16 +145,18 @@
 </div>
 
 <div id="app">
-  <div class="box"></div>
+<!-- todo 動態切換class -->
+                    <!-- ! 注意:這邊是用大括號喔 -->
+  <div class="box" :class={rotate:isTransform}></div>
   <hr>
-  <button class="btn btn-outline-primary">選轉物件</button>
+  <button class="btn btn-outline-primary" @click="isTransform = !isTransform">選轉物件</button>
 </div>
 
 <script>
 var app = new Vue({
   el: '#app',
   data: {
-    isTransform: false
+    isTransform: true
   },
 });
 </script>

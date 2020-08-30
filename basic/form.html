@@ -145,50 +145,60 @@
 </div>
 
 <div id="app">
+
+<!-- todo 單純資料轉換 -->
   <h4>字串</h4>
   {{ text }}
-  <input type="text" class="form-control">
+  <input type="text" class="form-control" v-model="text">
   <hr>
   <pre>{{ textarea }}</pre>
-  <textarea cols="30" rows="3" class="form-control"></textarea>
+  <textarea cols="30" rows="3" class="form-control" v-model="textarea"></textarea>
   <hr>
+<!-- todo data資料是布林值 -->
   <h4>Checkbox 與 Radio</h4>
   <div class="form-check">
-    <input type="checkbox" class="form-check-input" id="check1">
-    <label class="form-check-label" for="check1"> ... </label>
+    <input type="checkbox" class="form-check-input" id="check1" v-model="checkbox1">
+    <label class="form-check-label" for="check1"> 你要吃晚餐嗎? {{checkboxFn}}</label>
   </div>
   <hr>
+<!-- todo data資料是陣列 -->
   <div class="form-check">
-    <input type="checkbox" class="form-check-input" id="check2" value="雞">
+    <input type="checkbox" class="form-check-input" id="check2" value="雞" v-model="checkboxArray">
     <label class="form-check-label" for="check2">雞</label>
   </div>
   <div class="form-check">
-    <input type="checkbox" class="form-check-input" id="check3" value="豬">
+    <input type="checkbox" class="form-check-input" id="check3" value="豬" v-model="checkboxArray">
     <label class="form-check-label" for="check3">豬</label>
   </div>
   <div class="form-check">
-    <input type="checkbox" class="form-check-input" id="check4" value="牛">
+    <input type="checkbox" class="form-check-input" id="check4" value="牛" v-model="checkboxArray">
     <label class="form-check-label" for="check4">牛</label>
   </div>
-  <p>晚餐火鍋裡有 ...。</p>
+  <p>晚餐火鍋裡有 <span v-for="items in checkboxArray"> {{items}} </span>。</p>
   <hr>
+<!-- todo data資料是單選 -->
   <div class="form-check">
-    <input type="radio" class="form-check-input" id="radio2" value="雞">
+    <input type="radio" class="form-check-input" id="radio2" value="雞" v-model="singleRadio">
     <label class="form-check-label" for="radio2">雞</label>
   </div>
   <div class="form-check">
-    <input type="radio" class="form-check-input" id="radio3" value="豬">
+    <input type="radio" class="form-check-input" id="radio3" value="豬" v-model="singleRadio">
     <label class="form-check-label" for="radio3">豬</label>
   </div>
   <div class="form-check">
-    <input type="radio" class="form-check-input" id="radio4" value="牛">
+    <input type="radio" class="form-check-input" id="radio4" value="牛" v-model="singleRadio">
     <label class="form-check-label" for="radio4">牛</label>
   </div>
-  <p>晚餐火鍋裡有 ...。</p>
+  <p>晚餐火鍋裡有 {{singleRadio}}。</p>
   <hr>
+<!-- todo data資料是下拉選單 -->
   <h4>Select</h4>
   <select name="" id="" class="form-control" v-model="selected">
-    
+    <!-- *小技巧:使用disabled就可以避免使用者選到他 -->
+    <option value="" disabled>--請選擇--</option>
+    <option value="台北">台北</option>
+    <option value="台中">台中</option>
+    <option value="高雄">高雄</option>
   </select>
 </div>
 
@@ -203,6 +213,12 @@ var app = new Vue({
     singleRadio: '',
     selected: '',
   },
+computed: {
+  checkboxFn:function(){
+    return this.checkbox1;
+  },
+},
+
 });
 </script>
 
