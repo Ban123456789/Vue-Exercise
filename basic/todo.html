@@ -145,129 +145,152 @@
 </div>
 
 
-<div id="app">
+<div id="app" class="container my-3">
   <div class="input-group mb-3">
     <div class="input-group-prepend">
       <span class="input-group-text" id="basic-addon1">待辦事項</span>
     </div>
-    <input type="text" class="form-control" placeholder="準備要做的任務" v-model="sendContent">
+    <input type="text" class="form-control" placeholder="準備要做的任務"
+           v-model="inputData" @keyup.enter="addTodos">
     <div class="input-group-append">
-      <button class="btn btn-primary" type="button" @click="sendListCon">新增</button>
+      <button class="btn btn-primary" type="button" @click="addTodos">新增</button>
     </div>
   </div>
   <div class="card text-center">
     <div class="card-header">
       <ul class="nav nav-tabs card-header-tabs">
-      <!-- todo 這邊三個狀態因為都是判斷字串，所以都要加上單(雙)引號，布林就不用 -->
         <li class="nav-item">
-          <a class="nav-link" :class="{active:changeView == 'all'}" href="#" @click="changeView = 'all'">全部</a>
+          <a class="nav-link" @click="changeView = 'all'" 
+             :class="{active : changeView=='all'}" href="#">全部</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" :class="{active:changeView == 'active'}" href="#" @click="changeView = 'active'">進行中</a>
+          <a class="nav-link" @click="changeView = 'active'"
+             :class="{active : changeView=='active'}" href="#">進行中</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" :class="{active:changeView == 'finish'}" href="#" @click="changeView = 'finish'">已完成</a>
+          <a class="nav-link" @click="changeView = 'finish'"
+             :class="{active : changeView=='finish'}" href="#">已完成</a>
         </li>
       </ul>
     </div>
-    <!-- todo 清單內容 -->
-    <ul class="list-group list-group-flush text-left" v-for="(item,index) in todoFn">
-      <li class="list-group-item">
-        <div class="d-flex">
+    <ul class="list-group list-group-flush text-left">
+      <li class="list-group-item" v-for="(item,index) in todoFn" @dblclick="edit(item)">
+<!--   這裡是顯示列表     -->
+        <div class="d-flex" v-if="item.id !== editArea.id">
           <div class="form-check">
-            <input type="checkbox" class="form-check-input" :id='item.id' @click="item.checkbox = !item.checkbox">
-            <label class="form-check-label" :class="{completed:item.checkbox}" :for="item.id">
+            <input type="checkbox" class="form-check-input" id="a1"
+                   v-model="item.checkbox">
+            <label class="form-check-label" for="a1" :class="{completed:item.checkbox}">
               {{item.main}}
             </label>
           </div>
-          <button type="button" class="close ml-auto" aria-label="Close" @click="clear(index)">
+          <button type="button" class="close ml-auto" arialabel="Close" 
+                  @click="cancelTodo(item.id)">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
+<!--   這裡是編輯區     -->
+        <input type="text" class="form-control" v-if="item.id === editArea.id"
+               @keyup.esc="escEdit"
+               @keyup.enter="doneEdit(item)"
+               v-model="editMain">
       </li>
-      <!-- <li class="list-group-item">
-        <div class="d-flex">
-          <div class="form-check">
-            <input type="checkbox" class="form-check-input" id="a1">
-            <label class="form-check-label completed" for="a1">
-              Cras justo odio
-            </label>
-          </div>
-          <button type="button" class="close ml-auto" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-      </li>
-      <li class="list-group-item">
-        <input type="text" class="form-control">
-      </li> -->
     </ul>
     <div class="card-footer d-flex justify-content-between">
-      <span>還有 3 筆任務未完成</span>
-      <a href="#" @click="clearAll">清除所有任務</a>
+      <span>還有{{ notFinish }}筆任務未完成</span>
+      <a href="#" @click="cancelAllTodo">清除所有任務</a>
     </div>
   </div>
 </div>
 
 <script>
 var app = new Vue({
-  el: '#app',
-  data: {
-    content:[
-      {
-        id:'123',
-        main:'Hello',
-        checkbox:false
-      }
-    ],
-    sendContent:'',
+  el:"#app",
+  data:{
+    inputData:'',
+    todos:[{
+      id:'123',
+      main:'Hello',
+      checkbox:false,
+    }],
     changeView:['all','active','finish'],
+    editArea:{},
+    editMain:'',
   },
-
-  methods: {
-    sendListCon:function(){
-      const dateId = Date.now();
-        this.content.push({
-          id:dateId,
-          main:this.sendContent,
+  
+  methods:{
+    //新增input內容到li上     
+    addTodos:function(){
+      let value = this.inputData.trim();
+      const getId = Date.now();
+        if(value == ''){
+          return;
+        }else{
+          this.todos.push({
+          id:getId,
+          main:value,
           checkbox:false
         });
+          this.inputData = '';
+        }
     },
-
-    clear:function(index){
-      this.content.splice(index,1);
+    cancelTodo:function(cancelWithId){
+      let index;
+      this.todos.forEach(function(data,i){
+        if(data.id === cancelWithId){
+          index = i;
+        }
+      });
+      this.todos.splice(index,1);
     },
-
-    clearAll:function(){
-      this.content.splice(0,content.length);
+    cancelAllTodo:function(){
+      this.todos = [];  
+    },
+    edit:function(item){
+      this.editArea = item;
+      this.editMain = item.main;
+    },
+    escEdit:function(){
+      this.editArea = {};
+    },
+    doneEdit:function(item){
+      item.main = this.editMain;
+      this.editMain = '';
+      this.editArea = {};
     },
   },
-
-  computed: {
-    todoFn:function(){
-      if(this.changeView == 'all'){
-        return this.content;
-      }else if(this.changeView == 'active'){
-        let newContent = [];
-          this.content.forEach(function(items){
-            if(items.checkbox == false){
-              newContent.push(items);
-            }
-          });
-        return newContent;
-      }else if(this.changeView == 'finish'){
-        let newContent = [];
-          this.content.forEach(function(items){
-            if(items.checkbox == true){
-              newContent.push(items);
-            }
-          });
-        return newContent;
-      }
-      return [];
+  
+  computed:{
+    notFinish:function(){
+      let i = 0;
+      this.todos.forEach(function(data){
+        if(data.checkbox === false){
+          i++;
+        }
+      });
+      return i;
     },
-
-
+    todoFn:function(){
+      if(this.changeView === 'all'){
+        return this.todos;
+      }else if(this.changeView === 'active'){
+        let actTodo = [];
+          this.todos.forEach(function(data){
+            if(data.checkbox === false){
+              actTodo.push(data);      
+            }
+          });
+        return actTodo;
+      }else if(this.changeView === 'finish'){
+        let actTodo = [];
+          this.todos.forEach(function(data){
+            if(data.checkbox === true){
+              actTodo.push(data);      
+            }
+          });
+        return actTodo;
+      }
+    },
   },
 
 });
