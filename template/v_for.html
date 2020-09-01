@@ -123,24 +123,25 @@
   <h4>Key</h4>
   <p>請在範例上補上 key，並觀察其差異</p>
   <ul>
-    <li v-for="(item, key) in arrayData">
+  <!-- todo v-for 加上 key 的話，這裡的 input 才知道他屬於哪一個 li 的(這裡的 key 必須是不會變更且讀一性的) -->
+    <li v-for="(item, key) in arrayData" :key="item.age">
       {{ key }} - {{ item.name }} {{ item.age }} 歲 <input type="text">
     </li>
   </ul>
-  <button class="btn btn-outline-primary">反轉陣列</button>
+  <button class="btn btn-outline-primary" @click="change()">反轉陣列</button>
 
   <h4>Filter</h4>
   <p>請製作過濾資料</p>
-  <input type="text" class="form-control" v-model="filterText">
+  <input type="text" class="form-control" v-model="filterText" @keyup.enter="filterFn">
   <ul>
-    <li v-for="(item, key) in arrayData" :key="item.age">
+    <li v-for="(item, key) in filterArray" :key="item.age">
       {{ key }} - {{ item.name }} {{ item.age }} 歲 <input type="text">
     </li>
   </ul>
 
   <h4>不能運作的狀況</h4>
   <p>講師說明</p>
-  <button class="btn btn-outline-primary">無法運行</button>
+  <button class="btn btn-outline-primary" @click="cantWork">無法運行</button>
   <ul>
     <li v-for="(item, key) in arrayData" :key="item.age">
       {{ key }} - {{ item.name }} {{ item.age }} 歲 <input type="text">
@@ -157,13 +158,22 @@
   <h4>Template 的運用</h4>
   <p>請將兩個 tr 一組使用 v-for</p>
   <table class="table">
-    
+    <!-- todo 這邊使用模板創建(template)一個新的HTML樣式，template 他是不會被顯示出來的，只會顯示其內容而已 -->
+    <template v-for="(item, index) in arrayData" :key="item.age">
+      <tr>
+        <td>{{item.age}}</td>
+      </tr>
+      <tr>
+        <td>{{item.name}}</td>
+      </tr>
+    </template>
   </table>
 
   <h4>v-for 與 v-if</h4>
   <p>請加上 v-if 判斷式</p>
   <ul>
-    <li v-for="(item, key) in arrayData">
+  <!-- todo 若 v-for 與 v-if 一起使用，他會先執行 for 在執行 if -->
+    <li v-for="(item, key) in arrayData" v-if="item.age <= 20">
       {{ key }} - {{ item.name }} {{ item.age }} 歲
     </li>
   </ul>
@@ -222,6 +232,33 @@ var app = new Vue({
   },
   methods: {
     // 請在此練習 JavaScript
+    change:function(){
+      this.arrayData.reverse();
+    },
+    filterFn:function(){
+    // 這邊特別注意: 若函式內還有內層函式的話，內層函式內需要使用 this 的話，就必須在外層宣告一個變數，將this存入
+      let qw = this;
+      qw.filterArray = qw.arrayData.filter(function(data){
+      // 若內層函式直接使用 this 的話，會指向 window，而不是 Vue 元件內的東西
+        return data.name.match(qw.filterText);
+      });
+    },
+    cantWork:function(){
+    // 情境一:若只使用原生JS，這樣確實可以清空 arrayData 的資料，但在 Vue 內式無法的!
+      // this.arrayData.length = 0;
+      // 最後顯示長度卻實為0 ，但資料還是不變
+      // console.log(this.arrayData);
+    // 情境二:若直接改陣列內的資料，從 Vue 的 DevTools 去觀察，確實資料是會改變的，但 DOM 上面是不會更改資料的!
+      // this.arrayData[0] = {
+      //   name:'阿強',
+      //   age:50,
+      // };
+    // 解法:使用 Vue.set(object(array),index,value)，就可以直接更改內容，並且可以成功渲染在 DOM 上
+        Vue.set(this.arrayData,0,{
+          name:'小美',
+          age:10,
+        });
+    },
 
     // 解答：
     // reverseArray: function () {

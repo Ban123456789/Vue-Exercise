@@ -110,7 +110,7 @@
 
 <div id="app">
   <h4>物件寫法</h4>
-  <div class="box"></div>
+  <div class="box" :class="{rotate:isTransform , boxCl:boxColor}"></div>
   <p>請為此元素加上動態 className</p>
   <hr>
   <button class="btn btn-outline-primary" v-on:click="isTransform = !isTransform">選轉物件</button>
@@ -120,35 +120,37 @@
   </div>
   <hr>
   <h5>物件寫法 2</h5>
-  <div class="box"></div>
+  <div class="box" :class="objectClass"></div>
   <p>請將此範例改為 "物件" 寫法</p>
   <hr>
-  <button class="btn btn-outline-primary">選轉物件</button>
+  <button class="btn btn-outline-primary" @click="objectClass.rotate = !objectClass.rotate">選轉物件</button>
   <div class="form-check">
-    <input type="checkbox" class="form-check-input" id="classToggle2">
+    <input type="checkbox" class="form-check-input" id="classToggle2" @click="objectClass.boxCl = !objectClass.boxCl">
     <label class="form-check-label" for="classToggle2">切換色彩</label>
   </div>
   <hr>
   <h4>陣列寫法</h4>
-  <button class="btn">請操作本元件</button>
+  <button class="btn" :class="arrayClass">請操作本元件</button>
   <p>請用陣列呈現此元件 className</p>
   <div class="form-check">
-    <input type="checkbox" class="form-check-input" id="classToggle3">
+<!-- todo 這邊很特別 input 綁上 v-model 之後，當選取到她的時候，value 會自動存進去 v-model 綁定的位置 -->
+    <input type="checkbox" class="form-check-input" id="classToggle3" v-model="arrayClass" value="boxCl">
     <label class="form-check-label" for="classToggle3">切換樣式</label>
   </div>
   <div class="form-check">
-    <input type="checkbox" class="form-check-input" id="classToggle4">
+    <input type="checkbox" class="form-check-input" id="classToggle4" v-model="arrayClass" value="rotate">
     <label class="form-check-label" for="classToggle4">啟用元素狀態</label>
   </div>
   <hr>
   <h4>綁定行內樣式</h4>
   <p>請用不同方式綁定以下行內樣式</p>
-  <div class="box"></div>
-  <div class="box"></div>
-  <div class="box"></div>
+<!-- todo 記得屬性後面的值要加上單(雙)引號，不然瀏覽器會找不到 -->
+  <div class="box" :style="{backgroundColor:'red' , boxShadow:'0 0 3px 3px grey'}"></div>
+  <div class="box" :style="styleObject"></div>
+  <div class="box" :style="[styleObject2,styleObject]"></div>
   <hr>
   <h5>自動加上 Prefix (每個版本結果不同)</h5>
-  <div class="box"></div>
+  <div class="box" :style="styleObject3"></div>
 </div>
 
 <script>
@@ -159,7 +161,7 @@ var app = new Vue({
     boxColor: false,
     objectClass: {
       'rotate': false,
-      'bg-danger': false,
+      'boxCl': false,
     },
 
     // Array 操作
@@ -172,7 +174,7 @@ var app = new Vue({
       borderWidth: '5px'
     },
     styleObject2: {
-      boxShadow: '3px 3px 5px rgba(0, 0, 0, 0.16)'
+      boxShadow: '3px 3px 5px grey'
     },
     styleObject3: {
       userSelect: 'none'
@@ -185,7 +187,10 @@ var app = new Vue({
 .box {
   transition: all .5s;
 }
-.box.rotate {
+.boxCl{
+  background-color: cadetblue;
+}
+.rotate {
   transform: rotate(45deg)
 }
 </style>
