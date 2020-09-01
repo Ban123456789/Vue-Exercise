@@ -178,9 +178,9 @@
 <!--   這裡是顯示列表     -->
         <div class="d-flex" v-if="item.id !== editArea.id">
           <div class="form-check">
-            <input type="checkbox" class="form-check-input" id="a1"
+            <input type="checkbox" class="form-check-input" :id="item.id"
                    v-model="item.checkbox">
-            <label class="form-check-label" for="a1" :class="{completed:item.checkbox}">
+            <label class="form-check-label" :for="item.id" :class="{completed:item.checkbox}">
               {{item.main}}
             </label>
           </div>
@@ -190,7 +190,7 @@
           </button>
         </div>
 <!--   這裡是編輯區     -->
-        <input type="text" class="form-control" v-if="item.id === editArea.id"
+        <input type="text" class="form-control editInput" v-if="item.id === editArea.id"
                @keyup.esc="escEdit"
                @keyup.enter="doneEdit(item)"
                v-model="editMain">
@@ -249,6 +249,9 @@ var app = new Vue({
     edit:function(item){
       this.editArea = item;
       this.editMain = item.main;
+      setTimeout(function(){
+        document.querySelector('.editInput').focus();
+      },0);
     },
     escEdit:function(){
       this.editArea = {};
