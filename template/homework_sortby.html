@@ -119,15 +119,15 @@
     <thead>
       <tr>
         <th>品名</th>
-        <th class="click" @click="priceBtn">價格 
+        <th class="click" @click="compareBtn('price') , priceCheck = !priceCheck">價格 
           <!-- isReverse 為反轉 className -->
-          <span class="icon" :class="{inverse:check}">
+          <span class="icon" :class="{inverse:priceCheck}">
             <i class=" fas fa-angle-up text-success"></i>
           </span>
         </th>
-        <th class="click" @click="dateBtn">到期日</th>
+        <th class="click" @click="compareBtn('expiryDate') , dateCheck = !dateCheck">到期日</th>
       </tr>
-      <tr v-for="item in dataFn">
+      <tr v-for="item in data">
         <td>{{ item.name }}</td>
         <td>{{ item.price }}</td>
         <td>{{ item.expiryDate }}</td>
@@ -179,35 +179,60 @@ var app = new Vue({
         expiryDate: 200
       }
     ],
-    check:true,
-    sortBy:'',
+    priceCheck:true,
+    dateCheck:true,
+    // check:true,
+    // sortBy:'',
   },
   methods: {
-    priceBtn:function(){
-      this.check = !this.check;
-      this.sortBy = 'price';
-    },
-    dateBtn:function(){
-      this.check = !this.check;
-      this.sortBy = 'expiryDate'
-    },
-  },
-  // 請在此撰寫 JavaScript
-  computed: {
-    dataFn:function(){
-      let vm = this;
+    compareBtn:function(compare){
+      const vm = this;
         vm.data.sort(function(a,b){
-          a = a[vm.sortBy];
-          b = b[vm.sortBy];
-
-          if(vm.check === false){
-            return a - b;
-          }else{
-            return b - a;
-          }
+          switch(compare){
+            case 'price':
+              if(vm.priceCheck === false){
+                return a.price - b.price;
+              }else{
+                return b.price - a.price;
+              };
+              break;
+            case 'expiryDate':
+              if(vm.dateCheck === false){
+                return a.expiryDate - b.expiryDate;
+              }else{
+                return b.expiryDate - a.expiryDate;
+              }
+          };
         });
 
         return vm.data;
+    },
+    // priceBtn:function(){
+    //   this.check = !this.check;
+    //   this.sortBy = 'price';
+    // },
+    // dateBtn:function(){
+    //   this.check = !this.check;
+    //   this.sortBy = 'expiryDate'
+    // },
+  },
+  // 請在此撰寫 JavaScript
+  computed: {
+
+    // dataFn:function(){
+    //   let vm = this;
+    //     vm.data.sort(function(a,b){
+    //       a = a[vm.sortBy];
+    //       b = b[vm.sortBy];
+
+    //       if(vm.check === false){
+    //         return a - b;
+    //       }else{
+    //         return b - a;
+    //       }
+    //     });
+
+    //     return vm.data;
         
         // if(vm.priceCheck === false){
         //   vm.data.sort(function(a,b){
@@ -232,7 +257,7 @@ var app = new Vue({
         //   });
         //   return vm.data;
         // };
-    },
+    // },
   }
 });
 </script>
