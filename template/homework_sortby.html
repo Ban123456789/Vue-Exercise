@@ -119,16 +119,15 @@
     <thead>
       <tr>
         <th>品名</th>
-        <th class="click">價格 
+        <th class="click" @click="priceBtn">價格 
           <!-- isReverse 為反轉 className -->
-          <span class="icon isReverse">
+          <span class="icon" :class="{inverse:check}">
             <i class=" fas fa-angle-up text-success"></i>
           </span>
         </th>
-        <th class="click">到期日 
-        </th>
+        <th class="click" @click="dateBtn">到期日</th>
       </tr>
-      <tr v-for="item in data">
+      <tr v-for="item in dataFn">
         <td>{{ item.name }}</td>
         <td>{{ item.price }}</td>
         <td>{{ item.expiryDate }}</td>
@@ -180,9 +179,61 @@ var app = new Vue({
         expiryDate: 200
       }
     ],
+    check:true,
+    sortBy:'',
+  },
+  methods: {
+    priceBtn:function(){
+      this.check = !this.check;
+      this.sortBy = 'price';
+    },
+    dateBtn:function(){
+      this.check = !this.check;
+      this.sortBy = 'expiryDate'
+    },
   },
   // 請在此撰寫 JavaScript
-  computed: {}
+  computed: {
+    dataFn:function(){
+      let vm = this;
+        vm.data.sort(function(a,b){
+          a = a[vm.sortBy];
+          b = b[vm.sortBy];
+
+          if(vm.check === false){
+            return a - b;
+          }else{
+            return b - a;
+          }
+        });
+
+        return vm.data;
+        
+        // if(vm.priceCheck === false){
+        //   vm.data.sort(function(a,b){
+        //     return a.price - b.price;
+        //   });
+        //   return vm.data;
+        // }else if(vm.priceCheck === true){
+        //   vm.data.sort(function(a,b){
+        //     return b.price - a.price;
+        //   });
+        //   return vm.data;
+        // };
+        
+        // if(vm.dateCheck === false){
+        //   vm.data.sort(function(a,b){
+        //     return a.expiryDate - b.expiryDate;
+        //   });
+        //   return vm.data;
+        // }else if(vm.dateCheck === true){
+        //   vm.data.sort(function(a,b){
+        //     return b.expiryDate - a.expiryDate;
+        //   });
+        //   return vm.data;
+        // };
+    },
+  }
 });
 </script>
 
