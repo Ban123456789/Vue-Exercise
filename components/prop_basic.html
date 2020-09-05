@@ -121,13 +121,15 @@
 </div>
 
 <div id="app">
+<!-- todo 這邊的 img-url 會用串燒的方式是因為，在這邊如果使用跟 props 一樣駝峰方式是會報錯的 -->
+<!-- todo 這邊的 img-url === props:['imgUrl'] -->
   <h2>靜態傳遞</h2>
-  <photo></photo>
+  <photo img-url="https://images.unsplash.com/photo-1522204538344-922f76ecc041?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=50e38600a12d623a878983fc5524423f&auto=format&fit=crop&w=1351&q=80"></photo>
   <h2>動態傳遞</h2>
-  <photo></photo>
+  <photo :img-url="url"></photo>
 </div>
 
-<script type="text/x-template" id="photo">
+<script type="text/x-template" id="picture">
 <div>
   <img :src="imgUrl" class="img-fluid" alt="" />
   <p>風景照</p>
@@ -137,7 +139,8 @@
 <script>
 Vue.component('photo', {
   // 同學請依據課程內容，自行填寫 Props 的寫法
-  template: '#photo'
+  props:['imgUrl'],
+  template: '#picture'
 })
 
 var app = new Vue({

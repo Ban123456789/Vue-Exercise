@@ -125,19 +125,43 @@
 
 <div id="app">
   <table class="table">
+  <!-- todo <thead>標籤是用來放表格標題用的標籤 -->
     <thead>
     </thead>
+  <!-- todo <tbody>是用來放表格內容用的標籤 -->
     <tbody>
-      <tr v-for="(item, key) in data" :item="item" :key="key">
-        <td>{{ item.name }}</td>
-        <td>{{ item.cash }}</td>
-        <td>{{ item.icash }}</td>
-      </tr>
+    <!-- todo 這裡的 preson 是元件內使用 props 創建的，他將會把 data 資料透過 item 傳進去元件，讓每一個元件都可以取到外層的 data 資料 -->
+      <!-- <row-component v-for="(item, key) in data" :person="item" :key="key"></row-component> -->
+    <!-- todo 這邊因為使用 tbody 的標籤，所以在裡面預設是要放 tr 但是我們卻用 row-component 的標籤，所以會導致版面的不同 -->
+    <!-- todo 因此我們這邊改用在 tr 裡面使用 is 來掛載 row-component (is 就是動態載入模板用的)-->
+      <tr is="row-component" v-for="(item, key) in data" :person="item" :key="key"></tr>
     </tbody>
   </table>
 </div>
 
+
+<script type="text/x-template" id="rowComponentTemplate">
+  <tr>
+    <td>{{ person.name }}</td>
+    <td>{{ person.cash }}</td>
+    <td>{{ person.icash }}</td>
+  </tr>
+</script>
+
+
 <script>
+//第一種方法: 創建新元件('標籤名稱',物件) 
+// Vue.component('row-component',{
+//   props:['person'],
+//   template:'#rowComponentTemplate'
+// });
+
+// 第二種方法(然後再 Vue 元件裡面設定 components)
+var child = {
+  props:['person'],
+  template:'#rowComponentTemplate'
+};
+
 var app = new Vue({
   el: '#app',
   data: {
@@ -162,8 +186,12 @@ var app = new Vue({
         cash: 10000,
         icash: 100,
       },
-    ]
-  }
+    ],
+  },
+
+  components:{
+      "row-component":child,
+  },
 });
 </script>
 
@@ -211,7 +239,7 @@ var app = new Vue({
     "row-component": child
   } 
 });
---> 
+  -->
         </div>
       </div>
     </div>

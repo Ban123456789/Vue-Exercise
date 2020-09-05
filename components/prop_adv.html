@@ -125,10 +125,14 @@
   <photo :img-url="url"></photo>
   <p>修正單向數據流所造成的錯誤</p>
 
+<!-- todo 這邊你去修改 input 內資料，他原始參考資料也會被更動，這就是 "物件傳參考" 特性  -->
   <h2 class="mt-3">物件傳參考特性 及 尚未宣告的變數</h2>
   <div class="row">
     <div class="col-sm-4">
-      <card :user-data="user"></card>
+      <!-- ! 這邊的 card 原先沒有加上 v-if 的時候，因為在 ajax 抓資料的時候有時間差 -->
+      <!-- ! 導致這邊顯示的時候，ajax 可能還沒抓到資料，所以報錯，在這邊有個小技巧， -->
+      <!-- ! 就是加上 v-if ，他可以確定你是否抓到 ajax 的資料之後才執行顯示(這邊 v-if 的內容必須是 ajax 抓的資料內任意一筆) -->
+      <card :user-data="user" v-if="user.phone"></card>
     </div>
   </div>
 
@@ -138,27 +142,36 @@
     <label class="form-check-label" for="isShow">Check me out</label>
   </div>
   <div class="row">
-    <div class="col-sm-4" v-if="isShow">
-      <keep-card>
-      </keep-card>
+    <div class="col-sm-4">
+    <!-- todo 這邊如果沒有使用 keep-alive 的話，每次勾選的時候，資料都會從新一筆 -->
+    <!-- todo 因為 Vue 的生命週期到最後都會將資料銷毀，加他的話，就可以確保週期的最後不是銷毀，而是暫時消失而已 -->
+      <keep-alive>
+        <keep-card v-if="isShow"></keep-card>
+      </keep-alive>
     </div>
   </div>
 </div>
-
+<!-- todo Template -->
 <script type="text/x-template" id="photo">
 <div>
   <img :src="imgUrl" class="img-fluid" alt="" />
-  <input type="text" class="form-control" v-model="imgUrl">
+  <!-- ! 原本 v-model 裡面綁定的是 imgUrl ，這樣會造成你在 input 內修改網址，整個 imgUrl 都會被你修改 -->
+  <!-- ! 所以解決的辦法就是在 component 內新增一個 data 然後創建一個新的變數，將 imgUrl 存入，這樣在 input 怎麼改都不會有問題 -->
+  <input type="text" class="form-control" v-model="newUrl">
 </div>
 </script>
 
 
-<script type="text/x-template" id="card">
+<script type="text/x-template" id="cardId">
 <div class="card">
   <img class="card-img-top" :src="user.picture.large" alt="Card image cap">
   <div class="card-body">
-    <h5 class="card-title">{{ user.name.first }} {{ user.name.last }}</h5>
-    <p class="card-text">{{ user.email }}</p>
+    <h5 class="card-title">
+      {{ user.name.first }} {{ user.name.last }}
+    </h5>
+    <p class="card-text">
+      {{ user.email }}
+    </p>
   </div>
   <div class="card-footer">
     <input type="email" class="form-control" v-model="user.email">
@@ -170,6 +183,11 @@
 Vue.component('photo', {
   props: ['imgUrl'],
   template: '#photo',
+  data:function(){
+    return{
+      newUrl:this.imgUrl,
+    }
+  },
 
   // 解答：
   // data: function () {
@@ -181,7 +199,7 @@ Vue.component('photo', {
 
 Vue.component('card', {
   props: ['userData'],
-  template: '#card',
+  template: '#cardId',
   data: function () {
     return {
       user: this.userData
@@ -190,7 +208,7 @@ Vue.component('card', {
 });
 
 Vue.component('keepCard', {
-  template: '#card',
+  template: '#cardId',
   data: function() {
     return {
       user: {}
