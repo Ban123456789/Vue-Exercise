@@ -129,7 +129,8 @@
 
 <div id="app">
   <select name="" id="" class="form-control mb-3">
-    <option value="">--- 請選擇城市 ---</option>
+    <option value="請選擇城市">--- 請選擇城市 ---</option>
+    <option :value="country" v-for="(country, index) in location" >{{country}}</option>
   </select>
   <div>
     <h4>關注城市</h4>
@@ -184,13 +185,19 @@ var app = new Vue({
   methods: {
     getData() {
       const vm = this;
-      const api = 'http://opendata2.epa.gov.tw/AQI.json';
+      const api = 'https://script.google.com/macros/s/AKfycbzl6KKgb4v2-F3SCVxVaXjnMwM_XQvnk2A08nw7NjmGfuRVmak0/exec?url=http://opendata2.epa.gov.tw/AQI.json';
 
       // 使用 jQuery ajax
       $.get(api).then(function( response ) {
         vm.data = response;
-        console.log(response)
-      });
+        console.log(response);
+        vm.data.forEach( item => {
+          if( vm.location.indexOf(item.County) == -1){
+            vm.location.push(item.County);
+          }
+        });
+      })
+
     },
   }
 });

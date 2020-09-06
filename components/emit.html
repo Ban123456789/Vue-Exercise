@@ -122,8 +122,9 @@
 
 <div id="app">
   <h2>透過 emit 向外傳遞資訊</h2>
-  我透過元件儲值了 {{ cash }} 元
-  <button-counter></button-counter>
+  我透過元件儲值了 {{ cash }} 元 <button v-on:click="countTotal(num)">加1元</button>
+<!-- ! 之前在這邊犯下低端錯誤，在 DOM 元素內，不能用駝峰式寫法，這邊我一直用 linkBtn 所以他會不能用!!! -->
+  <button-counter v-on:link-btn="countTotal"></button-counter>
   <hr>
   <button-counter></button-counter>
 </div>
@@ -136,21 +137,29 @@ Vue.component('buttonCounter', {
   </div>`,
   data: function() {
     return {
-      counter: 1
+      counter: 1,
     }
   },
   methods: {
-    
+  // 這邊利用 $emit 將外部的方法連結到內部使用，這樣就可以從內部控制外部資料
+    incrementCounter:function(){
+      // 這邊我之前因為沒有將傳入的參數設定 number 所以她外層在相加的時候是用字串相加!!
+      this.$emit('link-btn',Number(this.counter));
+      // $emit('監聽名稱',想傳入函式內的參數)
+    }
   }
 });
 
 var app = new Vue({
   el: '#app',
   data: {
-    cash: 300
+    cash: 300,
+    num:1
   },
   methods: {
-    
+    countTotal:function(price){
+      this.cash = this.cash + price;
+    }
   }
 });
 </script>
