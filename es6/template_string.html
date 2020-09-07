@@ -96,7 +96,7 @@
           <!-- 練習開始 -->
           <h1 class="mt-0 text-muted">Template String 樣板字串</h1>
           
-<div class="alert alert-secondary">
+<div class="alert alert-secondary" id="app">
   <ol class="mb-0">
     <li>請跟隨課程完成此章節。</li>
   </ol>
@@ -128,6 +128,25 @@ let originUl = '<ul>\
 </ul>';
 
 console.log(originString, originUl);
+
+// 字串模板方法一:直接刻出來
+// let newUl = `
+//   <ul>
+//     <li>我叫做 ${ people[0].name }</li>
+//     <li>我叫做 ${ people[1].name }</li>
+//     <li>我叫做 ${ people[2].name }</li>
+//   </ul>
+// `;
+// 字串模板方法二:在模板內運用JS
+let newUl = `
+  <ul>
+    ${ people.map( item => `<li>我叫做 ${ item.name }</li>` ).join('')}
+  </ul>
+`;
+
+console.log(newUl);
+
+$('#app').html(newUl);
 
 </script> 
         </div>

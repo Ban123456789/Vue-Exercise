@@ -102,18 +102,27 @@
       <tr is="row-component" v-for="(item, key) in data" :item="item" :key="key"></tr>
     </tbody>
   </table>
-  {{ data[1].cash }}
+<!-- todo 使用 filter 全域的寫法，就可以在模板之外的地方使用 -->
+  {{ data[1].cash | commaFormat | priceFormat }}
 </div>
 
 <script type="text/x-template" id="row-component">
   <tr>
     <td>{{ item.name }}</td>
-    <td>{{ item.cash }}</td>
-    <td>{{ item.icash }}</td>
+    <td>{{ item.cash | commaFormat | priceFormat }}</td>
+    <td>{{ item.icash | commaFormat | priceFormat }}</td>
   </tr>
 </script>
 
 <script>
+// 這試 filter 的全域寫法(任何地方都可以使用)
+Vue.filter('commaFormat',function(value){
+  return value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+});
+Vue.filter('priceFormat',function(value){
+  return `$ ${value}`;
+});
+
 var child = {
   props: ['item'],
   template: '#row-component',
@@ -124,7 +133,21 @@ var child = {
   },
   mounted: function() {
     console.log('Component:', this)
-  }
+  },
+// 這是 filter 的區域寫法(僅限在此模板使用)
+  // filters:{
+  // // 轉千分位
+  //   commaFormat:function(value){
+  //     return value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+  //      /* return price.toLocaleString('en-US');  寫法二：轉為千分號*/
+  //   },
+  // // 加上 dollar 符號
+  //   priceFormat: function(value) {
+  //     // 加上 $ 字號
+  //     return `$ ${value}`;
+  //     // return '$' + value 寫法二;
+  //   },
+  // },
 }
 
 var app = new Vue({

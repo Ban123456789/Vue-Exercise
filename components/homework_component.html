@@ -128,50 +128,85 @@
 </div>
 
 <div id="app">
-  <select name="" id="" class="form-control mb-3">
+  <select name="" id="" class="form-control mb-3" v-model="filter">
     <option value="請選擇城市">--- 請選擇城市 ---</option>
-    <option :value="country" v-for="(country, index) in location" >{{country}}</option>
+    <option :value="country" v-for="(country, index) in location" :key="country">{{country}}</option>
   </select>
   <div>
     <h4>關注城市</h4>
-    <div class="card-columns">
+    <!-- <div class="card-columns" v-for="(datas, index) in data" :key="datas.SiteId">
       <div class="card status-aqi2">
-        <div class="card-header">苗栗縣 - 三義
+        <div class="card-header">{{ datas.County }}-{{ datas.SiteName }}
           <a href="#" class="float-right"><i class="fas fa-star"></i></a>
         </div>
         <div class="card-body">
           <ul class="list-unstyled">
-            <li>AQI 指數: 54</li>
-            <li>PM2.5: 8</li>
-            <li>說明: 普通</li>
+            <li>AQI 指數: {{ datas.AQI }}</li>
+            <li>PM2.5: {{ datas['PM2.5']}}</li>
+            <li>說明: {{ datas.Status }}</li>
           </ul>
-          2018-05-20 16:00
+          {{ updateDate }}
         </div>
       </div>
+    </div> -->
+    <div class="card-columns">
+      <focus-city-component v-for="(checkDatas, index) in check" :key="checkDatas.SiteId"
+                            :focus="checkDatas"
+                            >
+      </focus-city-component>
     </div>
   </div>
   
   <hr>
-  <div class="card-columns">
+  <h4>{{ filter }}觀測站清單</h4>
+  <div class="card-columns" v-for="(datas, index) in filterData" :key="datas.SiteId">
     <div class="card status-aqi2">
-      <div class="card-header">苗栗縣 - 三義
-        <a href="#" class="float-right"><i class="far fa-star"></i></a>
+      <div class="card-header">{{ datas.County }}-{{ datas.SiteName }}
+        <a href="#" class="float-right" @click.prevent="focusCity(datas)" v-html="changeIcon"></a>
       </div>
       <div class="card-body">
         <ul class="list-unstyled">
-          <li>AQI 指數: 54</li>
-          <li>PM2.5: 8</li>
-          <li>說明: 普通</li>
+          <li>AQI 指數: {{ datas.AQI }}</li>
+          <li>PM2.5: {{ datas['PM2.5']}}</li>
+          <li>說明: {{ datas.Status }}</li>
         </ul>
-      2018-05-20 16:00
+        {{ updateDate }}
       </div>
     </div>
   </div>
 </div>
 
+<!-- todo 創建模板 -->
+<script type="text/x-template" id="focusCity">
+  <div class="card status-aqi2">
+    <div class="card-header">{{ focus.County }} {{ focus.SiteName }}
+      <a href="#" class="float-right" @click.prevent="innerfocusBtn(focus)">
+        <i class="far fa-star" ></i>
+      </a>
+    </div>
+    <div class="card-body">
+      <ul class="list-unstyled">
+        <li>AQI 指數: {{ focus.AQI }}</li>
+        <li>PM2.5: {{ focus['PM2.5'] }}</li>
+        <li>說明: {{ focus.Status }}</li>
+      </ul>
+     <!-- {{ newUpdateDate }} -->
+    </div>
+  </div>
+</script>
+
 <script>
 // API 來源
 // https://opendata.epa.gov.tw/Data/Contents/AQI/
+Vue.component('focus-city-component',{
+  props:['focus'],
+  template:'#focusCity',
+  methods:{
+    innerfocusBtn:function(){
+      this.$emit('inner-focus',this.focus);
+    },
+  },
+});
 
 var app = new Vue({
   el: '#app',
@@ -180,6 +215,7 @@ var app = new Vue({
     location: [],
     stared: [],
     filter: '',
+    check:[],
   },
   // 請在此撰寫 JavaScript
   methods: {
@@ -197,9 +233,65 @@ var app = new Vue({
           }
         });
       })
-
     },
-  }
+// 存入關注城市
+    focusCity:function(datas){
+      let vm = this;
+        if(vm.check.indexOf(datas.SiteId) == -1){
+          vm.check.push(datas);
+          console.log(vm.check.indexOf(vm.data.SiteId));
+        }else{
+          vm.check.splice(datas.SiteId-1,1);
+        }
+        console.log(datas.SiteId);
+    },
+// 刪除掉關注城市內的資料
+    // deleteCheck(checkDatas){
+    //   let vm = this;
+    //     vm.location.forEach(function(item){
+    //       if(item.SiteId === checkDatas.SiteId){
+    //         vm.location.splice(checkDatas.SiteId-1,1);
+    //       }
+    //     })
+    // },
+  },
+// created 會在渲染之前抓到
+  created() {
+    this.getData()
+  },
+
+  computed: {
+    updateDate:function(){
+      let today = new Date();
+      let years = today.getFullYear();
+      let month = today.getMonth()+1;
+      let day = today.getDate();
+      let hour = today.getHours();
+      let min = today.getMinutes();
+        return `${years}-${month}-${day} ${hour}:${min}`;  
+    },
+// 下拉選單
+    filterData:function(){
+      let vm = this;  
+        if(vm.filter === ''){
+          return vm.data;
+        }else{
+          return vm.data.filter(function(item){
+            return item.County === vm.filter;
+          });
+        }
+    },
+// 更換星星樣式
+    changeIcon:function(){
+      let hollowStar = '<i class="far fa-star"></i>';
+      let solidStar = '<i class="fas fa-star"></i>';
+        if(this.check.indexOf(this.data.SiteId) === -1){
+          return hollowStar;
+        }else{
+          return solidStar;
+        }
+    },
+  },
 });
 </script>
 <!-- 
