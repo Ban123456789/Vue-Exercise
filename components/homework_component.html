@@ -134,24 +134,12 @@
   </select>
   <div>
     <h4>關注城市</h4>
-    <!-- <div class="card-columns" v-for="(datas, index) in data" :key="datas.SiteId">
-      <div class="card status-aqi2">
-        <div class="card-header">{{ datas.County }}-{{ datas.SiteName }}
-          <a href="#" class="float-right"><i class="fas fa-star"></i></a>
-        </div>
-        <div class="card-body">
-          <ul class="list-unstyled">
-            <li>AQI 指數: {{ datas.AQI }}</li>
-            <li>PM2.5: {{ datas['PM2.5']}}</li>
-            <li>說明: {{ datas.Status }}</li>
-          </ul>
-          {{ updateDate }}
-        </div>
-      </div>
-    </div> -->
     <div class="card-columns">
       <focus-city-component v-for="(checkDatas, index) in check" :key="checkDatas.SiteId"
                             :focus="checkDatas"
+                            :star="check"
+                            @inner-focus="focusCity(checkDatas)"
+
                             >
       </focus-city-component>
     </div>
@@ -159,7 +147,15 @@
   
   <hr>
   <h4>{{ filter }}觀測站清單</h4>
-  <div class="card-columns" v-for="(datas, index) in filterData" :key="datas.SiteId">
+  <div class="card-columns">
+    <focus-city-component v-for="(datas, index) in filterData" :key="datas.SiteId"
+                          :focus="datas"
+                          :star='check'
+                          @inner-focus="focusCity(datas)"
+                          >
+    </focus-city-component>
+  </div>
+  <!-- <div class="card-columns" v-for="(datas, index) in filterData" :key="datas.SiteId">
     <div class="card status-aqi2">
       <div class="card-header">{{ datas.County }}-{{ datas.SiteName }}
         <a href="#" class="float-right" @click.prevent="focusCity(datas)" v-html="changeIcon"></a>
@@ -173,16 +169,14 @@
         {{ updateDate }}
       </div>
     </div>
-  </div>
+  </div> -->
 </div>
 
 <!-- todo 創建模板 -->
 <script type="text/x-template" id="focusCity">
-  <div class="card status-aqi2">
+  <div class="card status-aqi2" :class="aqiStatus">
     <div class="card-header">{{ focus.County }} {{ focus.SiteName }}
-      <a href="#" class="float-right" @click.prevent="innerfocusBtn(focus)">
-        <i class="far fa-star" ></i>
-      </a>
+      <a href="#" class="float-right" @click.prevent="innerfocusBtn(focus)" v-html="changeIcon"></a>
     </div>
     <div class="card-body">
       <ul class="list-unstyled">
@@ -190,7 +184,7 @@
         <li>PM2.5: {{ focus['PM2.5'] }}</li>
         <li>說明: {{ focus.Status }}</li>
       </ul>
-     <!-- {{ newUpdateDate }} -->
+     {{ updateDate }}
     </div>
   </div>
 </script>
@@ -199,13 +193,52 @@
 // API 來源
 // https://opendata.epa.gov.tw/Data/Contents/AQI/
 Vue.component('focus-city-component',{
-  props:['focus'],
+  props:['focus','star'],
   template:'#focusCity',
   methods:{
     innerfocusBtn:function(){
       this.$emit('inner-focus',this.focus);
+      console.log(this.focus.Status);
     },
   },
+  computed:{
+// 更新時間 
+    updateDate:function(){
+      let today = new Date();
+      let years = today.getFullYear();
+      let month = today.getMonth()+1;
+      let day = today.getDate();
+      let hour = today.getHours();
+      let min = today.getMinutes();
+        return `${years}-${month}-${day} ${hour}:${min}`;  
+    },
+// 更換星星樣式
+    changeIcon:function(){
+      let hollowStar = '<i class="far fa-star"></i>';
+      let solidStar = '<i class="fas fa-star"></i>';
+        return (this.star.indexOf(this.focus) == -1) ? hollowStar : solidStar;  
+      },
+    },
+// 更換背景顏色
+    aqiStatus:function(){
+      switch(this.focus.Status){
+        case '普通':
+          return 'status-aqi2';
+          break;
+        case '對敏感族群不健康':
+          return 'status-aqi3';
+          break;
+        case '對所有族群不健康':
+          return 'status-aqi4';
+          break;
+        case '非常不健康':
+          return 'status-aqi5';
+          break;
+        case '危害':
+          return 'status-aqi6';
+          break;
+      };
+    },
 });
 
 var app = new Vue({
@@ -213,7 +246,6 @@ var app = new Vue({
   data: {
     data: [],
     location: [],
-    stared: [],
     filter: '',
     check:[],
   },
@@ -234,42 +266,26 @@ var app = new Vue({
         });
       })
     },
-// 存入關注城市
+    // 存入關注城市與刪除
     focusCity:function(datas){
       let vm = this;
-        if(vm.check.indexOf(datas.SiteId) == -1){
+      let indexInCheck = vm.check.indexOf(datas); 
+        if(indexInCheck === -1){
           vm.check.push(datas);
-          console.log(vm.check.indexOf(vm.data.SiteId));
-        }else{
-          vm.check.splice(datas.SiteId-1,1);
+          // console.log(indexInCheck);
+          console.log(datas);
+        }else{  
+          vm.check.splice(indexInCheck,1);
+          console.log(datas.SiteId);
         }
-        console.log(datas.SiteId);
     },
-// 刪除掉關注城市內的資料
-    // deleteCheck(checkDatas){
-    //   let vm = this;
-    //     vm.location.forEach(function(item){
-    //       if(item.SiteId === checkDatas.SiteId){
-    //         vm.location.splice(checkDatas.SiteId-1,1);
-    //       }
-    //     })
-    // },
   },
-// created 會在渲染之前抓到
+// created 會在渲染之前抓到資料
   created() {
     this.getData()
   },
 
   computed: {
-    updateDate:function(){
-      let today = new Date();
-      let years = today.getFullYear();
-      let month = today.getMonth()+1;
-      let day = today.getDate();
-      let hour = today.getHours();
-      let min = today.getMinutes();
-        return `${years}-${month}-${day} ${hour}:${min}`;  
-    },
 // 下拉選單
     filterData:function(){
       let vm = this;  
@@ -279,16 +295,6 @@ var app = new Vue({
           return vm.data.filter(function(item){
             return item.County === vm.filter;
           });
-        }
-    },
-// 更換星星樣式
-    changeIcon:function(){
-      let hollowStar = '<i class="far fa-star"></i>';
-      let solidStar = '<i class="fas fa-star"></i>';
-        if(this.check.indexOf(this.data.SiteId) === -1){
-          return hollowStar;
-        }else{
-          return solidStar;
         }
     },
   },
