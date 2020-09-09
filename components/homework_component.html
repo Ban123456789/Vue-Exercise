@@ -174,8 +174,8 @@
 
 <!-- todo 創建模板 -->
 <script type="text/x-template" id="focusCity">
-  <div class="card status-aqi2" :class="aqiStatus">
-    <div class="card-header">{{ focus.County }} {{ focus.SiteName }}
+  <div class="card" :class="aqiStatus">
+    <div class="card-header">{{ focus.County }}-{{ focus.SiteName }}
       <a href="#" class="float-right" @click.prevent="innerfocusBtn(focus)" v-html="changeIcon"></a>
     </div>
     <div class="card-body">

@@ -97,7 +97,8 @@
 </div>
 
 <div id="app">
-  <input type="email" v-model="email" v-focus v-validator="{ className: 'form-control' }">
+  <!-- todo  -->
+  <input type="email" v-model="item" v-focus v-validator="{ className: 'form-control' }">
 </div>
 
 <script>
@@ -112,13 +113,16 @@ Vue.directive('validator', {
   update: function(el, binding, vnode) {
     console.log('update', el.value, el.className, vnode);
 
-    // 尋找當前的 model 名稱
+    // 尋找當前的 model 名稱 )(因為到 directives 這層他是陣列，所以要用 find 去找)
     var currentModel = vnode.data.directives.find(function(o) {
         return o.name === 'model';
     }).expression;
     
     // 從當前 Model 取值
-    var value = vnode.context[currentModel];
+    // var value = vnode.context[currentModel];
+    var value = vnode.data.directives.find(function(i){
+      return i.name === 'model';
+    }).value.email;
 
     // Email validate
     var re = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
@@ -137,6 +141,8 @@ Vue.directive('validator', {
     }).expression;
     var value = vnode.context[currentModel];
 
+    console.log(currentModel,value);
+
     var re = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
     if (!re.test(value)) {
       el.className = 'form-control is-invalid'
@@ -149,7 +155,10 @@ Vue.directive('validator', {
 var app = new Vue({
   el: '#app',
   data: {
-    email: 'aaa',
+    item:{
+      email: 'aaa',
+      password: '123456789'
+    },
   },
   mounted: function() {
     console.log('Vue init:', this)
