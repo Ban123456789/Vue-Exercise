@@ -174,7 +174,7 @@
 
 <!-- todo 創建模板 -->
 <script type="text/x-template" id="focusCity">
-  <div class="card" :class="aqiStatus">
+  <div class="card status-aqi2" :class="aqiStatus">
     <div class="card-header">{{ focus.County }}-{{ focus.SiteName }}
       <a href="#" class="float-right" @click.prevent="innerfocusBtn(focus)" v-html="changeIcon"></a>
     </div>
@@ -218,7 +218,6 @@ Vue.component('focus-city-component',{
       let solidStar = '<i class="fas fa-star"></i>';
         return (this.star.indexOf(this.focus) == -1) ? hollowStar : solidStar;  
       },
-    },
 // 更換背景顏色
     aqiStatus:function(){
       switch(this.focus.Status){
@@ -239,6 +238,7 @@ Vue.component('focus-city-component',{
           break;
       };
     },
+  },
 });
 
 var app = new Vue({
